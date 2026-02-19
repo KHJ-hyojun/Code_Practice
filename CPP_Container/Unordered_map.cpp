@@ -41,10 +41,11 @@ private:
     static const int DEFALT_BUCKET = 1009;
 
     vector<list<pair<K,V>>> table;
-    int bucketSize;
-    int sz;
+    int bucketSize; // 버킷 개수
+    int sz; // 현재 저장된 (key,value) 개수
 
     //해시 함수
+    // key -> bucket index 변환
     size_t hashFunc(const K& key) const
     {
         return std::hash<K>{}(key) % bucketSize;
@@ -58,10 +59,84 @@ public:
         }
 
     // insert
-    void insert(const K& ket, const V& value)
+    void insert(const K& key, const V& value)
     {
-        size_t idx = hashFunc(key);
+        size_t idx = hashFunc(key); // 해시값 -> 버킷 위치 계산
 
-        
+        // 이미 key가 존재하면 value만 갱신
+        for (auto& p : table[idx])
+        {
+            if (p.first == key)
+            {
+                p.second = value;
+                return;
+            }
+        }
+
+        // 없으면 새 pair 추가
+        table[idx].push_back({key,value});
+        sz++;
+    }
+
+
+    // find
+    V* find(const K& key) 
+    {
+        size_t idx = hashFuc(key); 
+
+        // 해당 버킷 리스트 탐색
+        for (auto& p : table[idx])
+        {
+            if (p.first == key)
+                return &p.second;
+        }
+
+        return nullptr;
+    }
+
+    // operator[]
+    // map[key] 형태로 접근가능
+
+    V& operator[](const K& key)
+    {
+        size_t idx = hashFuc(key);
+
+        // key 존재하면 해당 value 반환
+        for (auto& p : table[idx])
+        {
+            if (p.first == key)
+                return p.second;
+        }
+
+        // 없으면 기본값 v() 생성 후 삽입
+        table[idx].push_back({key,V()});
+
+        // 방금 넣은 값 반환
+        return table[idx].back().second;
+    }
+
+    // erase
+    void erase(const K& key)
+    {
+        size_t idx = hasjFunc(key);
+
+        auto& lst = table[idx]; // 해당 버킷 리스트 참조
+
+        // 리스트 순회하며 삭제
+         for (auto it = lst.begin() ; it != lst.end(); ++it)
+         {
+            if (it->first == key)
+            {
+                lst.erase(it);
+                sz--;
+                return;
+            }
+         }
+    }
+
+    // size
+    int size() const 
+    {
+        return sz;
     }
 }
