@@ -8,32 +8,30 @@ int Zeroresult = 0;
 
 bool check(const vector<vector<int>> &vec,int row, int col, int size) {
 
-	bool chch = vec[row][col] == 0 ? false : true;
+	int color = vec[row][col];
 
 	for (int i = row; i < row + size; i++)
 	{
 		for (int j = col; j < col + size; j++)
 		{
-			if (vec[i][j] == 0 && chch == false || vec[i][j] == 1 && chch == true)
-				continue;
-			else
-				return false;		
+			if (vec[i][j] != color)
+				return false;
 		}
 	}
-	if (chch == true)
-	{
-		Oneresult++;
-		return 1;
-	}
-	else
-	{
-		Zeroresult++;
-		return 1;
-	}
+	return true;
 }
 
-void solve(const vector<vector<int>> &vec, int row, int col, int size) {
-	if (!check(vec, row, col, size))
+
+void solve(const vector<vector<int>>& vec, int row, int col, int size) {
+	if (check(vec, row, col, size))
+	{
+		if (vec[row][col] == 1)
+			Oneresult++;
+		else
+			Zeroresult++;
+		return;
+	}
+	else
 	{
 		int new_size = size / 2;
 		solve(vec, row, col, new_size);
